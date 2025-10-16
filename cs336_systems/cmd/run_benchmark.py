@@ -1,10 +1,8 @@
 import numpy as np
-import logging
+import pandas as pd
 from typing import NamedTuple
 
 from cs336_systems.benchmark import benchmark
-
-logger = logging.getLogger(__name__)
 
 
 class ModelSize(NamedTuple):
@@ -13,19 +11,39 @@ class ModelSize(NamedTuple):
     num_layers: int
     num_heads: int
 
+
 model_sizes = {
-    "small": ModelSize(d_model=768, d_ff=3072, num_layers=12, num_heads=12),
-    "medium": ModelSize(d_model=1024, d_ff=4096, num_layers=24, num_heads=16),
-    "large": ModelSize(d_model=1280, d_ff=5120, num_layers=36, num_heads=20),
-    "xl": ModelSize(d_model=1600, d_ff=6400, num_layers=48, num_heads=25),
-    "2.7B": ModelSize(d_model=2560, d_ff=10240, num_layers=32, num_heads=32),
+    "small": ModelSize(768, 3072, 12, 12),
+    "medium": ModelSize(1024, 4096, 24, 16),
+    "large": ModelSize(1280, 5120, 36, 20),
+    "xl": ModelSize(1600, 6400, 48, 25),
+    "2.7B": ModelSize(2560, 10240, 32, 32),
 }
 
-for key, args in model_sizes.items():
-    args = args._asdict()
-    for with_backward in [True, False]:
-        args["with_backward"] = with_backward
-        logger.info("Model size: %s", key)
-        logger.info("Benchmarking with args: %s", args)
-        ts = benchmark(**args)
-        logger.info("mean: %.3f ms, std: %.3f ms", np.mean(ts) * 1000, np.std(ts) * 1000)
+
+def main():
+    f_means = {}
+    t_means = {}
+    for name, spec in model_sizes.items():
+        base = spec._asdict()
+        f_means[name] = float(np.mean(benchmark(**{**base, "with_backward": False})) * 1000)
+        t_means[name] = float(np.mean(benchmark(**{**base, "with_backward": True})) * 1000)
+    rows = []
+    for name in model_sizes.keys():
+        fwd = f_means[name]
+        total = t_means[name]
+        bwd = max(total - fwd, 0.0)
+        rows.append({
+            "model_size": name,
+            "forward_ms": round(fwd, 3),
+            "backward_ms": round(bwd, 3),
+        })
+    df = pd.DataFrame(rows)
+    try:
+        print(df.to_markdown(index=False))
+    except Exception:
+        print(df)
+
+
+if __name__ == "__main__":
+    main()
