@@ -1,9 +1,12 @@
+import logging
 import numpy as np
 import pandas as pd
 from typing import NamedTuple
 
 from cs336_systems.benchmark import benchmark
 
+
+logger = logging.getLogger(__name__)
 
 class ModelSize(NamedTuple):
     d_model: int
@@ -25,6 +28,7 @@ def main():
     f_means = {}
     t_means = {}
     for name, spec in model_sizes.items():
+        logger.info("model_size: %s", name)
         base = spec._asdict()
         f_means[name] = float(np.mean(benchmark(**{**base, "with_backward": False})) * 1000)
         t_means[name] = float(np.mean(benchmark(**{**base, "with_backward": True})) * 1000)
@@ -42,6 +46,7 @@ def main():
     try:
         print(df.to_markdown(index=False))
     except Exception:
+        logger.exception("Failed to print as markdown")
         print(df)
 
 
