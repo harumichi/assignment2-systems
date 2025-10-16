@@ -1,4 +1,4 @@
 
 nsys profile \
---capture-range=cudaProfilerApi --pytorch -o result \
+--capture-range=cudaProfilerApi --python-backtrace=cuda -o result \
 python cmd/run_profiling.py
