@@ -12,5 +12,5 @@ for bs in "${batch_sizes[@]}"; do
 		--pytorch=autograd-nvtx \
 		--force-overwrite true \
 		-o "result_bs${bs}" \
-		python cs336_systems/cmd/run_profiling.py --batch-size
+		python cs336_systems/cmd/run_profiling.py --batch-size "${bs}"
 done
