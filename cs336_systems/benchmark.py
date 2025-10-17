@@ -1,6 +1,7 @@
 import torch
 import timeit
 import numpy as np
+from contextlib import nullcontext
 
 from cs336_basics.nn import Transformer, cross_entropy
 
@@ -18,6 +19,7 @@ def benchmark(
     steps: int = 10,
     warmup_steps: int = 5,
     with_backward: bool = True,
+    mixed_precision_dtype: torch.dtype | None = None,
 ):
     if torch.cuda.is_available():
         device = "cuda"
@@ -52,5 +54,12 @@ def benchmark(
             loss.backward()
         synchronize()
 
-    timeit.timeit(run, number=warmup_steps)
-    return timeit.repeat(run, repeat=steps, number=1)
+    if mixed_precision_dtype is not None:
+        assert isinstance(mixed_precision_dtype, torch.dtype)
+        context = torch.autocast(device, dtype=mixed_precision_dtype)
+    else:
+        context = nullcontext()
+
+    with context:
+        timeit.timeit(run, number=warmup_steps)
+        return timeit.repeat(run, repeat=steps, number=1)

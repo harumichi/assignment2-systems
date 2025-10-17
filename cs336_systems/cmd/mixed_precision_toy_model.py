@@ -34,8 +34,9 @@ else:
 logger.info("Using device: %s", device)
 
 model = ToyModel(in_features=128, out_features=5).to(device)
+cast_dtype = torch.bfloat16
 
-with torch.autocast(device, dtype=torch.float16):
+with torch.autocast(device, dtype=cast_dtype):
     target = torch.randint(0, 5, (32,)).to(device)
     criterion = nn.CrossEntropyLoss()
     x = torch.randn(32, 128).to(device)
