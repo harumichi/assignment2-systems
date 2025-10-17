@@ -1,4 +1,4 @@
-import numpy as np
+import argparse
 import logging
 from typing import NamedTuple
 
@@ -6,6 +6,12 @@ from cs336_systems.profiling import profiling
 
 logger = logging.getLogger(__name__)
 
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--batch-size', type=int)
+    parser.add_argument('--context-length', type=int)
+    return parser.parse_args()
 
 class ModelSize(NamedTuple):
     d_model: int
@@ -22,4 +28,7 @@ model_sizes = {
 }
 
 args = model_sizes["small"]._asdict()
+args.update(
+    {k:v for k,v in vars(parse_args()).items() if v is not None}
+)
 profiling(**args)
