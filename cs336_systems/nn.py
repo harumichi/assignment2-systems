@@ -5,7 +5,6 @@ import torch.cuda.nvtx as nvtx
 from einops import einsum, rearrange
 
 
-@nvtx.range("softmax")
 def softmax(x: torch.Tensor, dim: int) -> torch.Tensor:
     e_x = torch.exp(x - x.amax(dim=dim, keepdim=True))
     return e_x / e_x.sum(dim=dim, keepdim=True)
