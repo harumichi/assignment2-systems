@@ -3,6 +3,7 @@ import torch.nn as nn
 import logging
 
 import cs336_systems
+from cs336_systems.util import get_device
 
 logger = logging.getLogger(__name__)
 
@@ -25,12 +26,7 @@ class ToyModel(nn.Module):
         return x
 
 
-if torch.cuda.is_available():
-    device = "cuda"
-elif torch.backends.mps.is_available():
-    device = "mps"
-else:
-    device = "cpu"
+device = get_device()
 logger.info("Using device: %s", device)
 
 model = ToyModel(in_features=128, out_features=5).to(device)

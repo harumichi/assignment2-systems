@@ -1,6 +1,7 @@
 import argparse
 import logging
 from typing import NamedTuple
+import torch
 
 from cs336_systems.profiling import profiling
 
@@ -11,6 +12,9 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch-size', type=int)
     parser.add_argument('--context-length', type=int)
+    parser.add_argument('--enable-compute', action='store_true', default=None)
+    parser.add_argument('--enable-memory', action='store_true', default=None)
+    parser.add_argument('--mixed-precision-dtype', type=str, choices=['bfloat16', 'float16'])
     return parser.parse_args()
 
 class ModelSize(NamedTuple):
@@ -31,4 +35,6 @@ args = model_sizes["small"]._asdict()
 args.update(
     {k:v for k,v in vars(parse_args()).items() if v is not None}
 )
+if args.get("mixed_precision_dtype"):
+    args["mixed_precision_dtype"] = getattr(torch, args["mixed_precision_dtype"])
 profiling(**args)

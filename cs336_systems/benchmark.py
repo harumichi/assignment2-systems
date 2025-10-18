@@ -2,6 +2,7 @@ import torch
 import timeit
 import numpy as np
 from contextlib import nullcontext
+from cs336_systems.util import get_device
 
 from cs336_basics.nn import Transformer, cross_entropy
 
@@ -21,12 +22,7 @@ def benchmark(
     with_backward: bool = True,
     mixed_precision_dtype: torch.dtype | None = None,
 ):
-    if torch.cuda.is_available():
-        device = "cuda"
-    elif torch.backends.mps.is_available():
-        device = "mps"
-    else:
-        device = "cpu"
+    device = get_device()
 
     model = Transformer(
         vocab_size=vocab_size,

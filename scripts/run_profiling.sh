@@ -10,5 +10,5 @@ for context_length in "${context_lengths[@]}"; do
 		--pytorch=autograd-nvtx \
 		--force-overwrite true \
 		-o "profiling/result_context_length${context_length}" \
-		python cs336_systems/cmd/run_profiling.py --context-length ${context_length}
+		python cs336_systems/cmd/run_profiling.py --enable-compute --context-length ${context_length}
 done
